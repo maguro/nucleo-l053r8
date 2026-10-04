@@ -1,0 +1,17 @@
+[build]
+target = "thumbv6m-none-eabi" # Cortex-M0+
+
+[target.thumbv6m-none-eabi]
+# --no-catch-reset: By default, probe-rs sets the reset vector catch of the
+# core. probe-rs does not clear this setting when it exits. The setting stays
+# set after a press of the RESET button. As a result, without this flag, the
+# core halts at every reset until you power-cycle the board.
+runner = "probe-rs run --chip STM32L053R8Tx --no-catch-reset"
+rustflags = [
+  "-C", "link-arg=--nmagic",
+  "-C", "link-arg=-Tlink.x",  # cortex-m-rt linker script
+  "-C", "link-arg=-Tdefmt.x", # defmt log section
+]
+
+[env]
+DEFMT_LOG = "info"

@@ -1,0 +1,40 @@
+[workspace]
+resolver = "3"
+members = ["board", "examples/*"]
+
+[workspace.package]
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+
+# These are the shared dependency versions. Each example opts in with
+# `foo.workspace = true`.
+[workspace.dependencies]
+board = { path = "board" }
+embassy-stm32 = { version = "0.6", features = ["stm32l053r8", "memory-x", "time-driver-any", "exti", "defmt"] }
+embassy-executor = { version = "0.10", features = ["platform-cortex-m", "executor-thread", "defmt"] }
+embassy-time = { version = "0.5", features = ["defmt", "defmt-timestamp-uptime"] }
+embassy-sync = "0.8"
+cortex-m = { version = "0.7", features = ["inline-asm", "critical-section-single-core"] }
+cortex-m-rt = "0.7"
+defmt = "1"
+defmt-rtt = "1"
+panic-probe = { version = "1", features = ["print-defmt"] }
+
+# The L053R8 has 64 KB flash and 8 KB RAM. Debug info stays on the host, so debug
+# info uses no flash. Dev builds do not optimize the workspace crates (`board`
+# and the examples), so a debugger can show every local variable and step
+# through the code line by line. Dev builds optimize all dependencies for size,
+# so the examples still fit.
+[profile.dev]
+opt-level = 0
+debug = 2
+
+[profile.dev.package."*"]
+opt-level = "s"
+
+[profile.release]
+opt-level = "s"
+debug = 2
+lto = true
+codegen-units = 1
