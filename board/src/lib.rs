@@ -28,7 +28,7 @@ use embassy_stm32::exti::{self, ExtiInput};
 use embassy_stm32::gpio::{Level, Output, Pull, Speed};
 use embassy_stm32::mode::Async;
 use embassy_stm32::peripherals::{EXTI13, PA5, PC13};
-use embassy_stm32::rcc::{Pll, PllDiv, PllMul, PllSource, Sysclk};
+use embassy_stm32::rcc::{MSIRange, Pll, PllDiv, PllMul, PllSource, Sysclk, VoltageScale};
 use embassy_stm32::{Config, Peri, Peripherals, bind_interrupts, interrupt};
 
 // EXTI lines 4 to 15 share one interrupt on the L0. B1 is on line 13. Because
@@ -41,31 +41,40 @@ bind_interrupts!(struct Irqs {
 /// `SystemClock` selects the system clock that [`init`] sets up.
 #[derive(Clone, Copy)]
 pub enum SystemClock {
-    /// `Msi` runs the core from MSI at about 4.2 MHz. embassy-stm32 uses this
-    /// clock by default. After a reset, the chip starts from MSI at about
-    /// 2.1 MHz.
-    Msi,
+    /// `Msi2MHz` runs the core from MSI range 5 at about 2.1 MHz, with the
+    /// core voltage in range 3. The chip uses this MSI range after a reset.
+    /// The C `GPIO_IOToggle` example sets the same clock in
+    /// `SystemClock_Config()`.
+    Msi2MHz,
     /// `Pll32MHz` runs the core at 32 MHz from HSI16 through the PLL
-    /// (16 MHz x 4 / 2). 32 MHz is the maximum frequency of the chip. The C
-    /// factory demo sets the same clock in `SystemClock_Config()`.
+    /// (16 MHz x 4 / 2), with the core voltage in range 1. 32 MHz is the
+    /// maximum frequency of the chip. The C factory demo sets the same clock in
+    /// `SystemClock_Config()`.
     Pll32MHz,
 }
 
-/// `init` starts the chip with the given system clock. Then `init` returns the
-/// peripherals of the chip.
+/// `init` starts the chip with the system clock and the core voltage range
+/// that `clock` selects. Then `init` returns the peripherals of the chip.
 ///
-/// embassy-stm32 also sets the core voltage range and the flash wait states
-/// that the clock frequency needs.
+/// embassy-stm32 sets the flash wait states that the clock frequency needs.
 pub fn init(clock: SystemClock) -> Peripherals {
     let mut config = Config::default();
-    if let SystemClock::Pll32MHz = clock {
-        config.rcc.hsi = true;
-        config.rcc.pll = Some(Pll {
-            source: PllSource::HSI,
-            mul: PllMul::MUL4,
-            div: PllDiv::DIV2,
-        });
-        config.rcc.sys = Sysclk::PLL1_R;
+    match clock {
+        SystemClock::Msi2MHz => {
+            config.rcc.msi = Some(MSIRange::RANGE2M);
+            config.rcc.sys = Sysclk::MSI;
+            config.rcc.voltage_scale = VoltageScale::RANGE3;
+        }
+        SystemClock::Pll32MHz => {
+            config.rcc.hsi = true;
+            config.rcc.pll = Some(Pll {
+                source: PllSource::HSI,
+                mul: PllMul::MUL4,
+                div: PllDiv::DIV2,
+            });
+            config.rcc.sys = Sysclk::PLL1_R;
+            config.rcc.voltage_scale = VoltageScale::RANGE1;
+        }
     }
     embassy_stm32::init(config)
 }

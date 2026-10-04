@@ -30,7 +30,7 @@ All documentation and code comments must follow ASD-STE100 (Simplified Technical
 
 ## HAL and runtime
 
-Examples use embassy: `embassy-stm32` for peripherals, `embassy-executor` for async tasks, and `embassy-time` for delays. The time driver comes from `time-driver-any`, which reserves one hardware timer. Logging uses `defmt` over RTT. `panic-probe` prints panic messages. `embassy_stm32::init(Default::default())` runs the core from MSI at about 4.2 MHz, not the chip's 2.1 MHz reset clock. Examples that need a different clock set it explicitly in `embassy_stm32::Config`.
+Examples use embassy: `embassy-stm32` for peripherals, `embassy-executor` for async tasks, and `embassy-time` for delays. The time driver comes from `time-driver-any`, which reserves one hardware timer. The root `Cargo.toml` sets the tick rate of embassy-time to 32768 Hz. An example must not set a different tick rate, because Cargo merges the features of all the examples in one build. Logging uses `defmt` over RTT. `panic-probe` prints panic messages. Examples set the system clock with `board::init` and a `SystemClock` value. Each example uses the same clock as the C example that it ports. To add a clock, add a `SystemClock` variant in `board`.
 
 Each example's top doc comment names the C example that it ports.
 

@@ -45,6 +45,6 @@ cargo run -p factory
 cargo run -p factory --release
 ```
 
-The dev build uses about 25 KB of flash. The release build uses about 10 KB.
+The dev build uses about 29 KB of flash. The release build uses about 11 KB.
 
 The [blinky README](../blinky/README.md) tells how to stop probe-rs, reconnect with `probe-rs attach`, and debug in RustRover. These steps also apply to factory. In the commands and paths, use `factory` in place of `blinky`.

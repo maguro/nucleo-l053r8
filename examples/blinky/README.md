@@ -1,6 +1,6 @@
 # blinky
 
-This example toggles the user LED (LD2 on PA5) every 500 ms. It logs `blinky started` once, at startup.
+This example toggles the user LED (LD2 on PA5) every 200 ms. It logs `blinky started` once, at startup.
 
 It is the Rust counterpart of the STM32CubeL0 `GPIO_IOToggle` example.
 
@@ -28,7 +28,7 @@ probe-rs writes the program to flash, resets the chip, and stays attached to pri
 cargo run -p blinky --release
 ```
 
-This command uses the release profile in the root `Cargo.toml`. That profile optimizes all code for size and uses link-time optimization. The result is much smaller. The release build of blinky uses about 8 KB of flash, and the dev build uses about 20 KB. Both builds keep the debug info. The debug info stays on the host and uses no flash.
+This command uses the release profile in the root `Cargo.toml`. That profile optimizes all code for size and uses link-time optimization. The result is much smaller. The release build of blinky uses about 9 KB of flash, and the dev build uses about 22 KB. Both builds keep the debug info. The debug info stays on the host and uses no flash.
 
 Cargo writes the release build to `target/thumbv6m-none-eabi/release/blinky`. Use that path in place of `debug/blinky` when you reconnect or debug.
 
