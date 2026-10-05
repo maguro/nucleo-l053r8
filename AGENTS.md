@@ -30,7 +30,7 @@ All documentation and code comments must follow ASD-STE100 (Simplified Technical
 
 ## HAL and runtime
 
-Examples use embassy: `embassy-stm32` for peripherals, `embassy-executor` for async tasks, and `embassy-time` for delays. The time driver comes from `time-driver-any`, which reserves one hardware timer. The root `Cargo.toml` sets the tick rate of embassy-time to 32768 Hz. An example must not set a different tick rate, because Cargo merges the features of all the examples in one build. Logging uses `defmt` over RTT. `panic-probe` prints panic messages. Examples set the system clock with `board::init` and a `SystemClock` value. Each example uses the same clock as the C example that it ports. To add a clock, add a `SystemClock` variant in `board`.
+Examples use embassy: `embassy-stm32` for peripherals, `embassy-executor` for async tasks, and `embassy-time` for delays. The time driver comes from `time-driver-any`, which reserves one hardware timer. The root `Cargo.toml` sets the tick rate of embassy-time to 32768 Hz, and `board` depends on embassy-time so that each example gets this tick rate. An example must not set a different tick rate, because Cargo merges the features of all the examples in one build. Logging uses `defmt` over RTT. `panic-probe` prints panic messages. Examples set the system clock with `board::init` and a `SystemClock` value. Each example uses the same clock as the C example that it ports. To add a clock, add a `SystemClock` variant in `board`.
 
 Each example's top doc comment names the C example that it ports.
 
@@ -55,7 +55,7 @@ There are no host-side tests. To verify code, build it and run it on the board.
 
 - MCU: STM32L053R8T6, Arm Cortex-M0+, 32 MHz max.
 - Memory: 64 KB flash at `0x0800_0000`, 8 KB SRAM at `0x2000_0000`, 2 KB data EEPROM.
-- Rust target triple: `thumbv6m-none-eabi`. Cortex-M0+ has no hardware divide and no atomic compare-and-swap, so crates that need CAS atomics require `portable-atomic` or `critical-section`.
+- Rust target triple: `thumbv6m-none-eabi`. Cortex-M0+ has no hardware divide and no atomic compare-and-swap, so crates that need CAS atomics require `portable-atomic` or `critical-section`. An example that uses `static_cell` must also depend on `portable-atomic`. The root `Cargo.toml` sets up `portable-atomic` with its `critical-section` feature.
 - On-board debugger: ST-LINK/V2-1, which also exposes a virtual COM port on USART2 (PA2 TX, PA3 RX).
 - User LED LD2 on PA5. User button B1 on PC13.
 

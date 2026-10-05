@@ -7,3 +7,6 @@ publish.workspace = true
 
 [dependencies]
 embassy-stm32.workspace = true
+# The board code does not call embassy-time. This dependency applies the tick
+# rate from the root Cargo.toml to each example that uses board.
+embassy-time.workspace = true

@@ -11,7 +11,9 @@ publish = false
 # `foo.workspace = true`.
 [workspace.dependencies]
 board = { path = "board" }
-embassy-stm32 = { version = "0.6", features = ["stm32l053r8", "memory-x", "time-driver-any", "exti", "defmt"] }
+# unstable-pac: gives access to the peripheral registers. tim-timebase needs it
+# to clear the timer flag in its own interrupt handler.
+embassy-stm32 = { version = "0.6", features = ["stm32l053r8", "memory-x", "time-driver-any", "exti", "defmt", "unstable-pac"] }
 embassy-executor = { version = "0.10", features = ["platform-cortex-m", "executor-thread", "defmt"] }
 # tick-hz-32_768: The time driver divides the timer clock by the tick rate.
 # Delays are exact only if this division has no remainder. Each MSI frequency
@@ -19,6 +21,11 @@ embassy-executor = { version = "0.10", features = ["platform-cortex-m", "executo
 # MSI clocks. At 32 MHz, delays are 0.06% short.
 embassy-time = { version = "0.5", features = ["defmt", "defmt-timestamp-uptime", "tick-hz-32_768"] }
 embassy-sync = "0.8"
+static_cell = "2"
+# critical-section: Cortex-M0+ has no atomic compare-and-swap. static_cell
+# needs one, and this feature gives one that disables interrupts for a short
+# time.
+portable-atomic = { version = "1", features = ["critical-section"] }
 cortex-m = { version = "0.7", features = ["inline-asm", "critical-section-single-core"] }
 cortex-m-rt = "0.7"
 defmt = "1"
